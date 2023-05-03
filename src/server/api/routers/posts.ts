@@ -16,6 +16,15 @@ const filterUserForClient = (user: User) => {
   };
 };
 
+import { Ratelimit } from "@upstash/ratelimit";
+import { Redis } from "@upstash/redis";
+
+const ratelimit = new Ratelimit({
+    redis: Redis.fromEnv(),
+    limiter: Ratelimit.slidingWindow(10, "10 s"),
+    analytics: true,
+});
+
 export const postsRouter = createTRPCRouter({
   getAll: publicProcedure.query(async ({ ctx }) => {
     const posts = await ctx.prisma.post.findMany({
@@ -57,6 +66,15 @@ export const postsRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
     const authorId = ctx.userId;
+
+    const { success } = await ratelimit.limit(authorId);
+
+    if (!success) {
+        throw new TRPCError({
+            code: "TOO_MANY_REQUESTS",
+            message: "You are doing that too much",
+        });
+    };
 
     const post = await ctx.prisma.post.create({
         data: {
