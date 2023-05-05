@@ -53,7 +53,9 @@ const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
         </div>
         <div className="w-full border-b border-slate-400"/>
         <ProfileFeed userId={data.id} />
+
       </PageLayout>
+      
     </>
   );
 };
