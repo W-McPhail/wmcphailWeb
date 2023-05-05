@@ -42,7 +42,7 @@ export const profileRouter = createTRPCRouter({
           });
         }
         return filterUserForClient(user)
-      };
+      }
 
       return filterUserForClient(user);
 
